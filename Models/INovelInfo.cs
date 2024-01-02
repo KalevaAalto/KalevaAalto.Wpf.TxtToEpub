@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -36,9 +37,10 @@ namespace KalevaAalto.Wpf.TxtToEpub.Models
             NovelFileFormat novelFileFormat = GetNovelFileFormat(Path.GetExtension(fileName));
             switch (novelFileFormat)
             {
-                case NovelFileFormat.Epub:await LoadNovelFromEpubAsync(fileName, token);return;
-                case NovelFileFormat.Xml:await LoadNovelFromXmlAsync(fileName, token);return;
-                default:await LoadNovelFromTxtAsync(fileName, token);return;
+                case NovelFileFormat.Epub:await LoadNovelFromEpubAsync(fileName, token);break;
+                case NovelFileFormat.Xml:await LoadNovelFromXmlAsync(fileName, token); break;
+                case NovelFileFormat.Txt: await LoadNovelFromTxtAsync(fileName, token); break;
+                default:throw new NotFiniteNumberException();
             }
         }
 

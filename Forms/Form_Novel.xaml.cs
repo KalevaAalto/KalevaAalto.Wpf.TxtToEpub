@@ -390,7 +390,26 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
         private async void TestButton_Click(object sender, RoutedEventArgs e)
         {
 #if DEBUG
-            await TestService.Test();
+            string? fileName = SaveFile(fileFilter, Title);
+            if (fileName is null)
+            {
+                return;
+            }
+
+            Workflow workflow = new Workflow(@"测试",str=>Trace.WriteLine(str));
+
+            workflow.WorkingContent = @"导入文本并重新生成小说";
+            _novelInfo.Content = NovelContentTextbox.Text;
+            workflow.WorkingContent = @"捕获文件名";
+            _path = System.IO.Path.GetDirectoryName(fileName)!;
+            _suffix = GetNovelFileFormat(System.IO.Path.GetExtension(fileName));
+            workflow.WorkingContent = @"保存";
+            await _novelInfo.SaveAsync(fileName, _tokenSource.Token);
+
+
+            workflow.End();
+
+            //await TestService.Test();
             
 #endif
 

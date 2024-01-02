@@ -83,15 +83,15 @@ namespace KalevaAalto.Wpf.TxtToEpub.Extensions
         protected override async Task LoadNovelFromTxtAsync(string fileName, CancellationToken token = default) =>Content = await GetStringFromFileAsync(fileName);
         
 
-        protected override async Task LoadNovelFromXmlAsync(string fileName, CancellationToken token = default) =>Content =(await Novel.LoadNovelFromXmlAsync(fileName)).Content;
-        
-        protected override async Task LoadNovelFromEpubAsync(string fileName, CancellationToken token = default) =>Content = Novel.LoadNovelFromEpub(fileName).Content;
+        protected override async Task LoadNovelFromXmlAsync(string fileName, CancellationToken token = default) =>Content =(await Novel.LoadNovelFromXmlAsync(fileName, token)).Content;
+
+        protected override async Task LoadNovelFromEpubAsync(string fileName, CancellationToken token = default) => Content = (await Novel.LoadNovelFromEpubAsync(fileName, token)).Content;
         
 
-        protected override async Task SaveAsTxtAsync(string fileName, CancellationToken token = default) =>await System.IO.File.WriteAllTextAsync(fileName, Content);
+        protected override async Task SaveAsTxtAsync(string fileName, CancellationToken token = default) =>await System.IO.File.WriteAllTextAsync(fileName, Content, token);
         
-        protected override async Task SaveAsXmlAsync(string fileName, CancellationToken token = default) =>await _novel.SaveAsXmlAsync(fileName);
-        protected override async Task SaveAsEpubAsync(string fileName, CancellationToken token = default) =>await _novel.SaveAsEpubAsync(fileName);
+        protected override async Task SaveAsXmlAsync(string fileName, CancellationToken token = default) =>await _novel.SaveAsXmlAsync(fileName, token);
+        protected override async Task SaveAsEpubAsync(string fileName, CancellationToken token = default) =>await _novel.SaveAsEpubAsync(fileName, token);
         
     }
 }
