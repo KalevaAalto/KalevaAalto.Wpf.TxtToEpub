@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "KalevaAalto.TxtToEpub": {
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)\\bin\\Debug\\net6.0-windows\\KalevaAalto.Wpf.TxtToEpub.exe"
+    }
+  }
+}

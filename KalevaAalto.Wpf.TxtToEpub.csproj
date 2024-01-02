@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>TextTemplate.ico</ApplicationIcon>
+    <Platforms>AnyCPU;x64</Platforms>
+    <AssemblyName>KalevaAalto.Wpf.TxtToEpub</AssemblyName>
+    <RootNamespace>KalevaAalto.Wpf.TxtToEpub</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="TextTemplate.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Costura.Fody" Version="5.7.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.0.2" />
+    <PackageReference Include="SkiaSharp" Version="2.88.6" />
+    <PackageReference Include="VersOne.Epub" Version="3.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KalevaAalto.Csharp\KalevaAalto.Csharp.csproj" />
+    <ProjectReference Include="..\KalevaAalto.Wpf.Base\KalevaAalto.Wpf.Base.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="KalevaAalto" />
+    <Using Include="KalevaAalto.Main">
+      <Static>True</Static>
+    </Using>
+    <Using Include="KalevaAalto.Wpf.Base" />
+    <Using Include="KalevaAalto.Wpf.Base.Main">
+      <Static>True</Static>
+    </Using>
+    <Using Include="KalevaAalto.Wpf.TxtToEpub.Static">
+      <Static>True</Static>
+    </Using>
+  </ItemGroup>
+
+</Project>

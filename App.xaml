@@ -1,0 +1,11 @@
+﻿<Application x:Class="KalevaAalto.TxtToEpub.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:KalevaAalto.TxtToEpub"
+             LoadCompleted="Application_LoadCompleted"
+             StartupUri="Forms/Form_Novel.xaml">
+    <Application.Resources>
+         
+    </Application.Resources>
+    
+</Application>
