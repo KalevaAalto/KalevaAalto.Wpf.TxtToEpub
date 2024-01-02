@@ -30,7 +30,7 @@ namespace KalevaAalto.Wpf.TxtToEpub.Models
         public const string DefaultTitleRegexString = @"第[〇零一两二三四五六七八九十百千万亿\d]+[卷章回节集][\-\:\s]*(?<name>.*)";
         public string _titleRegexString = DefaultTitleRegexString;
         public string TitleRegexString { get => _titleRegexString; set  { _titleRegexString = value;OnPropertyChanged(nameof(TitleRegexString)); } }
-        protected Regex TitleRegex => new Regex($"^{_titleRegexString}$");
+        public Regex TitleRegex => new Regex($"^{_titleRegexString}$");
         public async Task LoadAsync(string fileName, CancellationToken token)
         {
             Title = System.IO.Path.GetFileNameWithoutExtension(fileName);
@@ -44,7 +44,9 @@ namespace KalevaAalto.Wpf.TxtToEpub.Models
             }
         }
 
-        public abstract Task DeleteChapterAsync(string chapterTitle, CancellationToken token = default);
+        public abstract Task DeleteChapterAsync(int[] sers, CancellationToken token = default);
+
+        public abstract Task DividChapterByWordCount(string content);
 
 
         protected abstract Task LoadNovelFromTxtAsync(string fileName, CancellationToken token = default);

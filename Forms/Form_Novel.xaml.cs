@@ -31,6 +31,8 @@ using KalevaAalto.Wpf.TxtToEpub.Models;
 using Microsoft.Extensions.DependencyInjection;
 using KalevaAalto.Wpf.TxtToEpub.Models.Enums;
 using KalevaAalto.TxtToEpub;
+using SqlSugar;
+#pragma warning disable 1998
 
 namespace KalevaAalto.Wpf.TxtToEpub.Forms
 {
@@ -53,11 +55,18 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
         private INovelInfo _novelInfo = Static.ServiceProvider.GetService<INovelInfo>()!;
         private DispatcherTimer _timer = new DispatcherTimer();
         private CancellationTokenSource _tokenSource = new CancellationTokenSource();
+        private readonly static string[] s_titleRegexStrings = 
+        {
+            @"第[〇零一两二三四五六七八九十百千万亿\d]+[卷章回节集][\-\:\s]*(?<name>.*)",
+            @"第[〇零一两二三四五六七八九十百千万亿\d]+章\-(?<name>.*)",
+            @"第[〇零一两二三四五六七八九十百千万亿\d]+卷\s+第[〇零一二三四五六七八九十百千万亿/d]+章\s+(?<name>.*)",
+        };
         public Form_Novel()
         {
             //初始化窗口
             InitializeComponent();
             DataContext = _novelInfo;
+            TitleRegexTextbox.ItemsSource = s_titleRegexStrings;
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -73,7 +82,9 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
             #endregion
 
 #if DEBUG
-            TestButton.Visibility = Visibility.Visible;
+
+#else
+            TestButton.Content = @"刷新";
 #endif
 
 
@@ -89,7 +100,6 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
         private string FindString { get => FindTextbox.Text; set => FindTextbox.Text = value; }
         private string ReplaceString { get => ReplaceTextbox.Text; set => ReplaceTextbox.Text = value; }
         private bool IsUsingRegex => IsUsingRegexCheckbox.IsChecked ?? false;
-        private string TitleRegex { get => TitleRegexTextbox.Text; set => TitleRegexTextbox.Text = value; }
         private bool ListviewChaptersIsMulti => Checkbox_ListviewChaptersIsMulti.IsChecked ?? false;
 
 
@@ -103,9 +113,12 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
         {
             try
             {
-                IChapterInfo selectedPerson = (((ListViewItem)sender!).DataContext as IChapterInfo)!;
-                NovelContentTextbox.Select(selectedPerson.TitlePos, selectedPerson.Title.Length);
-                NovelContentTextbox.JumpToPoint(selectedPerson.TitlePos);
+                IChapterInfo? selectedPerson = (((ListViewItem)sender!).DataContext as IChapterInfo);
+                if(selectedPerson is not null)
+                {
+                    NovelContentTextbox.Select(selectedPerson.TitlePos, selectedPerson.Title.Length);
+                    NovelContentTextbox.JumpToPoint(selectedPerson.TitlePos);
+                }
             }
             catch
             {
@@ -141,16 +154,9 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
         }
 
 
-        /// <summary>
-        /// 删除章节
-        /// </summary>
         private async void DeleteChapterButton_Click(object sender, RoutedEventArgs e)
         {
-
-
-            throw new NotImplementedException();
-
-
+            await _novelInfo.DeleteChapterAsync(Listview_Chapters.SelectedItems.Cast<IChapterInfo>().Select(it=>it.Ser).ToArray());
         }
 
 
@@ -198,7 +204,7 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
                 }
                 else
                 {
-                    throw new NotImplementedException();
+                    throw new Exception(@"只能选择一个文档；");
                 }
             }
             catch (Exception ex)
@@ -216,7 +222,7 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
         private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             string? fileName = SaveFile(fileFilter, Title);
-            if (fileName == null)
+            if (fileName is null)
             {
                 return;
             }
@@ -257,8 +263,48 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
                 return;
             }
 
+            int selectionStart = NovelContentTextbox.SelectionStart;
+            int selectionLength = NovelContentTextbox.SelectionLength;
+            if (IsUsingRegex)
+            {
 
-            throw new NotImplementedException();
+                try
+                {
+
+                    Regex regex = new Regex(FindString);
+                    Match match =regex.Match(NovelContentTextbox.Text, selectionStart + selectionLength);
+
+                    if (match.Success)
+                    {
+                        int pos = match.Index;
+                        NovelContentTextbox.Select(pos, match.Value.Length);
+                        NovelContentTextbox.JumpToPoint(pos);
+                    }
+                    else
+                    {
+                        MessageBox.Show(@"无匹配项！");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+
+            }
+            else
+            {
+                int pos = NovelContentTextbox.Text.IndexOf(FindString, selectionStart+ selectionLength);
+
+                if (pos != -1)
+                {
+                    NovelContentTextbox.Select(pos,FindString.Length);
+                    NovelContentTextbox.JumpToPoint(pos);
+                }
+
+            }
+
+
+            
         }
 
         /// <summary>
@@ -266,15 +312,14 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
         /// </summary>
         private async void ReplaceButton_Click(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
-            //如果查找字符串为空，则不执行该函数
             if (this.FindString.Length == 0)
             {
                 return;
             }
 
 
-            if (this.IsUsingRegex)
+
+            if (IsUsingRegex)
             {
                 try
                 {
@@ -290,9 +335,10 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
                         row[@"替换后"] = RegexFormat(this.ReplaceString,match.Groups);
                         table.Rows.Add(row);
                     }
-                    if(!datatable_messagebox.DataTable_Comfrimd(table,$"替换{matchs.Count.ToString("#,##0")}项！！！"))return;
+                    if(!DataTableMessageBoxForm.Comfrimd(table,$"替换{matchs.Count.ToString("#,##0")}项！！！"))return;
                     this.NovelContentTextbox.Text = regex.Replace(this.NovelContentTextbox.Text, this.ReplaceString);
                     MessageBox.Show(@"替换成功！！！", @"提示");
+                    _novelInfo.Content = NovelContentTextbox.Text;
                 }
                 catch
                 {
@@ -302,46 +348,31 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
             }
             else
             {
-
-                //显示提示框
-                MessageBoxResult result = MessageBox.Show($"共有{this.NovelContentTextbox.Text.SubStringCount( this.FindString)}可替换！！！" ,
-                    @"请确认！！！",  MessageBoxButton.OKCancel);
-
-                //判断点击了哪个按钮
-                if (result != MessageBoxResult.OK)
+                if (MessageBox.Show($"共有{this.NovelContentTextbox.Text.SubStringCount(this.FindString)}可替换！！！",
+                    @"请确认！！！", MessageBoxButton.OKCancel) != MessageBoxResult.OK)
                 {
                     return;
                 }
 
-
-                this.NovelContentTextbox.Text = this.NovelContentTextbox.Text.Replace(this.FindString,this.ReplaceString);
+                NovelContentTextbox.Text = this.NovelContentTextbox.Text.Replace(FindString,ReplaceString);
                 MessageBox.Show(@"替换成功！！！", @"提示");
+                _novelInfo.Content = NovelContentTextbox.Text;
             }
         
         }
 
 
-        /// <summary>
-        /// 按字数分章节
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+
         private async void DivideChaptersByWordCountButton_Click(object sender, RoutedEventArgs e)
         {
-
-            
-            MessageBoxResult result = MessageBox.Show(@"是否按字数分章节？",@"请确认！！！", MessageBoxButton.OKCancel);
-
-            
-            if (result != MessageBoxResult.OK)
+            if (MessageBox.Show(@"是否按字数分章节？", @"请确认！！！", MessageBoxButton.OKCancel) != MessageBoxResult.OK)
             {
                 return;
             }
-
-            await this.Dispatcher.Invoke(async () =>
+            else
             {
-                throw new NotImplementedException();
-            });
+                await _novelInfo.DividChapterByWordCount(NovelContentTextbox.Text);
+            }
         }
 
 
@@ -351,7 +382,43 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
         /// </summary>
         private void ReplaceTitleButton_Click(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            Regex regex = _novelInfo.TitleRegex;
+            DataTable dataTable = new DataTable();
+            dataTable.Columns.Add(@"序号", typeof(int));
+            dataTable.Columns.Add(@"更改前",typeof(string));
+            dataTable.Columns.Add(@"更改后",typeof(string));
+
+            
+            _novelInfo.ChapterInfos.ToList().ForEach(info => {
+                DataRow dataRow = dataTable.Rows.Add();
+                dataRow[@"序号"] = info.Ser;
+                dataRow[@"更改前"] = info.Title;
+                Match match = regex.Match(info.Title);
+                if (!match.Success) { MessageBox.Show($"标题“{info.Title}”与正则表达式不符，请检查！");return; }
+                if (match.Groups.ContainsKey(@"name"))
+                {
+                    dataRow[@"更改后"] = $"第{dataTable.Rows.Count.ToString(@"0000")}章-{match.Groups[@"name"].Value}";
+                }
+                else if(match.Groups.Count > 1)
+                {
+                    dataRow[@"更改后"] = $"第{dataTable.Rows.Count.ToString(@"0000")}章-{match.Groups[1].Value}";
+                }
+                else
+                {
+                    MessageBox.Show($"标题正则表达式不包含名称，请检查！"); return;
+                }
+            });
+
+            if (!DataTableMessageBoxForm.Comfrimd(dataTable)) { return; }
+
+            _novelInfo.ChapterInfos.ToList().ForEach(info =>
+            {
+                DataRow dataRow = dataTable.Rows.Cast<DataRow>().First(it => (int)it[@"序号"] == info.Ser);
+                info.Title = (string)dataRow[@"更改后"];
+            });
+
+            NovelContentTextbox.Text = _novelInfo.Content;
+
         }
 
         /// <summary>
@@ -390,7 +457,7 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
         private async void TestButton_Click(object sender, RoutedEventArgs e)
         {
 #if DEBUG
-            string? fileName = SaveFile(fileFilter, Title);
+            string? fileName = OpenFile(fileFilter);
             if (fileName is null)
             {
                 return;
@@ -398,25 +465,28 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
 
             Workflow workflow = new Workflow(@"测试",str=>Trace.WriteLine(str));
 
-            workflow.WorkingContent = @"导入文本并重新生成小说";
-            _novelInfo.Content = NovelContentTextbox.Text;
-            workflow.WorkingContent = @"捕获文件名";
-            _path = System.IO.Path.GetDirectoryName(fileName)!;
-            _suffix = GetNovelFileFormat(System.IO.Path.GetExtension(fileName));
-            workflow.WorkingContent = @"保存";
-            await _novelInfo.SaveAsync(fileName, _tokenSource.Token);
 
+
+
+
+            workflow.WorkingContent = @"打开";
+            await _novelInfo.LoadAsync(fileName, _tokenSource.Token);
+
+            
 
             workflow.End();
 
             //await TestService.Test();
-            
+
+#else
+            _novelInfo.Content = NovelContentTextbox.Text;
+
 #endif
 
         }
 
 
 
-        
+
     }
 }

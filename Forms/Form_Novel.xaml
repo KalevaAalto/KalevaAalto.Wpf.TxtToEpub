@@ -52,7 +52,7 @@
             </Grid>
             <Button Grid.Column="2" Grid.Row="0" Margin="2" Content="查询" Click="FindButton_Click"/>
             <Button Grid.Column="2" Grid.Row="1" Margin="2" Content="替换" Click="ReplaceButton_Click"/>
-            <Button Grid.Column="3" Grid.Row="2" Margin="2" Content="测试" Click="TestButton_Click" x:Name="TestButton" Visibility="Hidden"/>
+            <Button Grid.Column="3" Grid.Row="2" Margin="2" Content="测试" Click="TestButton_Click" x:Name="TestButton"/>
         </Grid>
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
@@ -62,11 +62,8 @@
                 <ColumnDefinition Width="80"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="标题正则表达式：" Grid.Column="0" TextAlignment="Right" VerticalAlignment="Center"/>
-            <ComboBox Grid.Column="1" IsEditable="True" IsReadOnly="False" Margin="2" VerticalContentAlignment="Center" Name="TitleRegexTextbox" Text="{Binding TitleRegexString,Mode=TwoWay}">
-                <ComboBoxItem>第[〇零一两二三四五六七八九十百千万亿\d]+[卷章回节集][\-\:\s]*(.*)</ComboBoxItem>
-                <ComboBoxItem>第[〇零一两二三四五六七八九十百千万亿\d]+章\-(.*)</ComboBoxItem>
-                <ComboBoxItem>第[〇零一两二三四五六七八九十百千万亿\d]+卷\s+第[〇零一二三四五六七八九十百千万亿/d]+章\s+(.*)</ComboBoxItem>
-            </ComboBox>
+            <ComboBox Grid.Column="1" IsEditable="True" IsReadOnly="False" Margin="2" VerticalContentAlignment="Center" Name="TitleRegexTextbox" Text="{Binding TitleRegexString,Mode=TwoWay}"/>
+
             <Button Grid.Column="2" Grid.ColumnSpan="2" Content="更改标题" Margin="2" Click="ReplaceTitleButton_Click"/>
         </Grid>
         <Grid Grid.Row="3">

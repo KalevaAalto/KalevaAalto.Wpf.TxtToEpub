@@ -15,12 +15,12 @@ namespace KalevaAalto.TxtToEpub
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-            
+            KalevaAalto.Main.ProcessInit();
         }
 
         private async void Application_LoadCompleted(object sender, System.Windows.Navigation.NavigationEventArgs e)
         {
-            await KalevaAalto.Main.ProcessInitAsync();
+            //await KalevaAalto.Main.ProcessInitAsync();
         }
     }
 }

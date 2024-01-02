@@ -1,11 +1,11 @@
-﻿<Window x:Class="KalevaAalto.Wpf.TxtToEpub.Forms.datatable_messagebox"
+﻿<Window x:Class="KalevaAalto.Wpf.TxtToEpub.Forms.DataTableMessageBoxForm"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KalevaAalto.Wpf.TxtToEpub"
         mc:Ignorable="d"
-        Title="datatable_messagebox" Height="800" Width="500" WindowStartupLocation="CenterScreen">
+        Title="DataTableMessageBoxForm" Height="800" Width="500" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <Style TargetType="{x:Type DataGridColumnHeader}">
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -16,7 +16,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
-        <DataGrid Grid.Row="0" Margin="2" Name="datagrid" Width="Auto" ColumnHeaderStyle="{StaticResource {x:Type DataGridColumnHeader}}"/>
+        <DataGrid Grid.Row="0" Margin="2" Name="MainDatagrid" Width="Auto" ColumnHeaderStyle="{StaticResource {x:Type DataGridColumnHeader}}"/>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>

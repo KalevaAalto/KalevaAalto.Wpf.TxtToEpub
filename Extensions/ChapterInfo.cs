@@ -17,6 +17,9 @@ namespace KalevaAalto.Wpf.TxtToEpub.Extensions
             _titlePos = pos;
         }
 
+
+        public NovelChapter NovelChapter => _novelChapter;
+
         public override int TitlePos => _titlePos;
         public override int Length => _novelChapter.Length;
         public override string Content { get => _novelChapter.Content; set => _novelChapter.Content= value; }

@@ -23,21 +23,13 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
     /// <summary>
     /// datatable_messagebox.xaml 的交互逻辑
     /// </summary>
-    public partial class datatable_messagebox : Window
+    public partial class DataTableMessageBoxForm : Window
     {
-        private ObservableCollection<ExpandoObject> list = new ObservableCollection<ExpandoObject>();
-
-
-        
-        
-
-        
-
         public bool Confirmed { get; private set; } = false;
-        public datatable_messagebox(DataTable table,string name="请确认！")
+        public DataTableMessageBoxForm(DataTable table,string name)
         {
-            this.InitializeComponent();
-            this.Title = name;
+            InitializeComponent();
+            Title = name;
             foreach (DataColumn column in table.Columns)
             {
                 DataGridTextColumn textColumn = new DataGridTextColumn();
@@ -52,7 +44,7 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
                 }
 
 
-                this.datagrid.Columns.Add(textColumn);
+                MainDatagrid.Columns.Add(textColumn);
 
             }
 
@@ -61,11 +53,8 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
             {
                 var my_type = new System.Dynamic.ExpandoObject() as IDictionary<string, Object>;
                 foreach (DataColumn column in table.Columns) my_type.Add(column.ColumnName, row[column.ColumnName]);
-                this.datagrid.Items.Add(my_type);
+                MainDatagrid.Items.Add(my_type);
             }
-
-
-
 
 
         }
@@ -76,19 +65,19 @@ namespace KalevaAalto.Wpf.TxtToEpub.Forms
 
         private void YesButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Confirmed = true;
-            this.Close();
+            Confirmed = true;
+            Close();
         }
 
         private void NoButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
         }
 
 
-        public static bool DataTable_Comfrimd(DataTable table, string name = "请确认！")
+        public static bool Comfrimd(DataTable table, string name = @"请确认！")
         {
-            datatable_messagebox win = new datatable_messagebox(table,name);
+            DataTableMessageBoxForm win = new DataTableMessageBoxForm(table,name);
             win.ShowDialog();
             return win.Confirmed;
 
